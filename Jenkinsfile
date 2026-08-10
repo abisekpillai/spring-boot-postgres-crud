@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         maven 'Maven3'
+        jdk "JDK17"
     }
 
     environment {
@@ -25,29 +26,9 @@ pipeline {
             }
         }
 
-        stage('Version WAR') {
-            steps {
-                sh '''
-                VERSION=1.0.${BUILD_NUMBER}-$(git rev-parse --short HEAD)
-
-                cp target/*.war target/${APP_NAME}-${VERSION}.war
-
-                echo ${VERSION} > target/version.txt
-                '''
-            }
-        }
-
         stage('Deploy') {
             steps {
-                sh '''
-                VERSION=$(cat target/version.txt)
-
-                rm -rf ${TOMCAT_WEBAPPS}/${APP_NAME}
-                rm -f ${TOMCAT_WEBAPPS}/${APP_NAME}.war
-
-                cp target/${APP_NAME}-${VERSION}.war \
-                   ${TOMCAT_WEBAPPS}/${APP_NAME}.war
-                '''
+                sh 'cp target/*.war /var/lib/tomcat10/webapps/ROOT.war'
             }
         }
     }
